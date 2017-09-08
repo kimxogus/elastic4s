@@ -12,8 +12,8 @@ import org.elasticsearch.common.xcontent.{XContentBuilder, XContentFactory, XCon
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
-case class CreateIndexTemplateResponse()
-case class DeleteIndexTemplateResponse()
+case class CreateIndexTemplateResponse(acknowledged: Boolean)
+case class DeleteIndexTemplateResponse(acknowledged: Boolean)
 case class GetIndexTemplateResponse()
 
 trait IndexTemplateImplicits {
@@ -36,11 +36,11 @@ trait IndexTemplateImplicits {
     }
   }
 
-  implicit object GetIndexTemplateHttpExecutable extends HttpExecutable[GetIndexTemplateDefinition, GetIndexTemplateResponse] {
+  implicit object GetIndexTemplateHttpExecutable extends HttpExecutable[GetIndexTemplateDefinition, Map[String, CreateIndexTemplateDefinition]] {
     override def execute(client: RestClient,
-                         request: GetIndexTemplateDefinition): Future[GetIndexTemplateResponse] = {
+                         request: GetIndexTemplateDefinition): Future[Map[String, CreateIndexTemplateDefinition]] = {
       val endpoint = s"/_template/" + request.name
-      val fn = client.performRequestAsync("GET", endpoint, _: ResponseListener)
+      client.performRequestAsync("GET", endpoint, _: ResponseListener)
       client.async("GET", endpoint, Map.empty, ResponseHandler.default)
     }
   }
