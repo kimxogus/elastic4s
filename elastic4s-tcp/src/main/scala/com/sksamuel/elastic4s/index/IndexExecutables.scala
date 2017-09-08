@@ -4,7 +4,7 @@ import com.sksamuel.elastic4s.indexes.{IndexDefinition, IndexShowImplicits}
 import com.sksamuel.elastic4s.{Executable, XContentFieldValueWriter}
 import org.elasticsearch.action.index.{IndexRequestBuilder, IndexResponse}
 import org.elasticsearch.client.Client
-import org.elasticsearch.common.xcontent.XContentFactory
+import org.elasticsearch.common.xcontent.{XContentFactory, XContentType}
 
 import scala.concurrent.Future
 
@@ -17,7 +17,7 @@ trait IndexExecutables extends IndexShowImplicits {
       val builder = c.prepareIndex(t.indexAndType.index, t.indexAndType.`type`)
       t.id.map(_.toString).foreach(builder.setId)
       t.source match {
-        case Some(json) => builder.setSource(json)
+        case Some(json) => builder.setSource(json, XContentType.JSON)
         case _ =>
           val source = XContentFactory.jsonBuilder().startObject()
           t.fields.foreach(XContentFieldValueWriter(source, _))
@@ -31,7 +31,7 @@ trait IndexExecutables extends IndexShowImplicits {
       t.routing.foreach(builder.setRouting)
       t.pipeline.foreach(builder.setPipeline)
       t.timestamp.foreach(builder.setTimestamp)
-      t.source.foreach(builder.setSource)
+      t.source.foreach(builder.setSource(_, XContentType.JSON))
       t.createOnly.foreach(builder.setCreate)
       builder
     }
