@@ -50,10 +50,10 @@ object SignedClientConfig extends HttpClientConfigCallback {
 class AWSSigningRequestInterceptor(private val awsCredentialsProvider: AWSCredentialsProvider = new DefaultAWSCredentialsProviderChain(),
                                    private val region: String = "ap-northeast-2",
                                    private val service: String = "es",
-                                   private val dateTime: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
+                                   private val dateTime: () => LocalDateTime = () => LocalDateTime.now(ZoneId.of("UTC"))
                                   ) extends HttpRequestInterceptor {
 
-  val signer = AwsSigner(awsCredentialsProvider, region, service, () => dateTime)
+  val signer = AwsSigner(awsCredentialsProvider, region, service, dateTime)
 
   override def process(request: HttpRequest, context: HttpContext): Unit = {
     val rw = request.asInstanceOf[HttpRequestWrapper]
