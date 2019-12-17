@@ -30,7 +30,7 @@ lazy val core = Project("elastic4s-core", file("elastic4s-core"))
     libraryDependencies ++= Seq(
       "joda-time"                    % "joda-time"             % "2.9.9",
       "com.fasterxml.jackson.core"   % "jackson-core"          % JacksonVersion,
-      "com.fasterxml.jackson.core"   % "jackson-databind"      % JacksonVersion,
+      "com.fasterxml.jackson.core"   % "jackson-databind"      % JacksonDatabindVersion,
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion
     )
   )
@@ -42,7 +42,7 @@ lazy val http = Project("elastic4s-http", file("elastic4s-http"))
       "org.elasticsearch.client"     % "elasticsearch-rest-client" % ElasticsearchVersion,
       "org.apache.logging.log4j"     % "log4j-api"                 % Log4jVersion % "test",
       "com.fasterxml.jackson.core"   % "jackson-core"              % JacksonVersion,
-      "com.fasterxml.jackson.core"   % "jackson-databind"          % JacksonVersion,
+      "com.fasterxml.jackson.core"   % "jackson-databind"          % JacksonDatabindVersion,
       "com.fasterxml.jackson.module" %% "jackson-module-scala"     % JacksonVersion exclude ("org.scala-lang", "scala-library")
     )
   )
@@ -138,7 +138,7 @@ lazy val jackson = Project("elastic4s-jackson", file("elastic4s-jackson"))
   .settings(
     name := "elastic4s-jackson",
     libraryDependencies += "com.fasterxml.jackson.core"     % "jackson-core"          % JacksonVersion,
-    libraryDependencies += "com.fasterxml.jackson.core"     % "jackson-databind"      % JacksonVersion,
+    libraryDependencies += "com.fasterxml.jackson.core"     % "jackson-databind"      % JacksonDatabindVersion,
     libraryDependencies += "com.fasterxml.jackson.module"   %% "jackson-module-scala" % JacksonVersion exclude ("org.scala-lang", "scala-library"),
     libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-joda" % JacksonVersion
   )
@@ -206,7 +206,7 @@ lazy val tests = Project("elastic4s-tests", file("elastic4s-tests"))
       "commons-io"                   % "commons-io"            % CommonsIoVersion % "test",
       "org.mockito"                  % "mockito-all"           % MockitoVersion   % "test",
       "com.fasterxml.jackson.core"   % "jackson-core"          % JacksonVersion   % "test",
-      "com.fasterxml.jackson.core"   % "jackson-databind"      % JacksonVersion   % "test",
+      "com.fasterxml.jackson.core"   % "jackson-databind"      % JacksonDatabindVersion   % "test",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion   % "test" exclude ("org.scala-lang", "scala-library"),
       "org.apache.logging.log4j"     % "log4j-api"             % "2.8.2"          % "test",
       "org.apache.logging.log4j"     % "log4j-slf4j-impl"      % "2.8.2"          % "test",
