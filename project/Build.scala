@@ -1,8 +1,8 @@
-import com.typesafe.sbt.SbtPgp
-import com.typesafe.sbt.pgp.PgpKeys
 import sbt._
 import sbt.plugins.JvmPlugin
 import sbt.Keys._
+import com.amazonaws.regions.{Region, Regions}
+import ohnosequences.sbt.SbtS3Resolver.autoImport._
 
 object Build extends AutoPlugin {
 
@@ -10,7 +10,7 @@ object Build extends AutoPlugin {
   override def requires = JvmPlugin
 
   object autoImport {
-    val org                    = "com.sksamuel.elastic4s"
+    val org                    = "com.aroundus.elastic4s"
     val AkkaVersion            = "2.5.23"
     val CatsVersion            = "2.0.0"
     val CirceVersion           = "0.12.0-M3"
@@ -35,20 +35,20 @@ object Build extends AutoPlugin {
 
   override def projectSettings = Seq(
     organization := org,
-    scalaVersion := "2.13.0",
-    crossScalaVersions := Seq("2.13.0", "2.11.12", "2.12.8"),
-    publishMavenStyle := true,
+    scalaVersion := "2.12.10",
+    crossScalaVersions := Seq("2.13.1", "2.11.12", "2.12.10"),
+//    publishMavenStyle := true,
     resolvers += Resolver.mavenLocal,
-    resolvers += Resolver.url("https://artifacts.elastic.co/maven"),
+//    resolvers += Resolver.url("https://artifacts.elastic.co/maven"),
     javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:MaxPermSize=2048M", "-XX:+CMSClassUnloadingEnabled"),
     publishArtifact in Test := false,
     fork in Test:= false,
     parallelExecution in ThisBuild := false,
-    SbtPgp.autoImport.useGpg := true,
-    SbtPgp.autoImport.useGpgAgent := true,
-    sbtrelease.ReleasePlugin.autoImport.releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-    sbtrelease.ReleasePlugin.autoImport.releaseCrossBuild := true,
-    credentials += Credentials(Path.userHome / ".sbt" / "pgp.credentials"),
+//    SbtPgp.autoImport.useGpg := true,
+//    SbtPgp.autoImport.useGpgAgent := true,
+//    sbtrelease.ReleasePlugin.autoImport.releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+//    sbtrelease.ReleasePlugin.autoImport.releaseCrossBuild := true,
+//    credentials += Credentials(Path.userHome / ".sbt" / "pgp.credentials"),
     scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8"),
     javacOptions := Seq("-source", "1.8", "-target", "1.8"),
     libraryDependencies ++= Seq(
@@ -57,13 +57,34 @@ object Build extends AutoPlugin {
       "org.mockito"       % "mockito-all" % MockitoVersion % "test",
       "org.scalatest"     %% "scalatest"  % ScalatestVersion % "test"
     ),
+//    publishTo := {
+//      val nexus = "https://oss.sonatype.org/"
+//      if (version.value.trim.endsWith("SNAPSHOT"))
+//        Some("snapshots" at nexus + "content/repositories/snapshots")
+//      else
+//        Some("releases" at nexus + "service/local/staging/deploy/maven2")
+//    },
+    publishMavenStyle := false,
+    s3region := Region.getRegion(Regions.AP_NORTHEAST_2),
     publishTo := {
-      val nexus = "https://oss.sonatype.org/"
-      if (version.value.trim.endsWith("SNAPSHOT"))
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("releases" at nexus + "service/local/staging/deploy/maven2")
+      val prefix = if (isSnapshot.value) "snapshots" else "releases"
+      Some(
+        s3resolver
+          .value(
+            "Aroundus " + prefix + " Ivy Repository",
+            s3(prefix + ".ivy.repo.aroundus.com")
+          )
+          .withIvyPatterns
+      )
     },
+    resolvers ++= Seq("snapshots", "releases").map({ prefix =>
+      s3resolver
+        .value(
+          "Aroundus " + prefix + " Ivy Repository",
+          s3(prefix + ".ivy.repo.aroundus.com")
+        )
+        .withIvyPatterns
+    }),
     pomExtra :=
       <url>https://github.com/sksamuel/elastic4s</url>
         <licenses>
